@@ -1,11 +1,19 @@
+provider "aws" {
+  region  = "us-east-1"
+  profile = var.aws_profile
+  alias   = "us-east-1"
+}
+
 # SES domian verification
 resource "aws_ses_domain_identity" "this" {
-  domain = var.domain_name
+  provider = aws.us-east-1
+  domain   = var.domain_name
 }
 
 resource "aws_ses_domain_identity_verification" "this" {
   depends_on = [aws_route53_record.ses_verification]
-  domain = aws_ses_domain_identity.this.id
+  provider   = aws.us-east-1
+  domain     = aws_ses_domain_identity.this.id
 }
 
 resource "aws_route53_record" "ses_verification" {
@@ -19,7 +27,8 @@ resource "aws_route53_record" "ses_verification" {
 # SES DKIM verification
 
 resource "aws_ses_domain_dkim" "this" {
-  domain = aws_ses_domain_identity.this.domain
+  provider = aws.us-east-1
+  domain   = aws_ses_domain_identity.this.domain
 }
 
 resource "aws_route53_record" "dkim" {

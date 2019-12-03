@@ -1,3 +1,9 @@
+variable "aws_profile" {
+  type    = string
+  default = "default"
+  description = "AWS profile name"
+}
+
 variable "domain_name" {
   type        = string
   description = "The domain name for the SES account"

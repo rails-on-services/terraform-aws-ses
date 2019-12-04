@@ -20,12 +20,11 @@ resource "aws_route53_record" "ses_verification" {
   zone_id = var.route53_zone_id
   name    = "_amazonses.${aws_ses_domain_identity.this.id}"
   type    = "TXT"
-  ttl     = "60"
+  ttl     = "600"
   records = [aws_ses_domain_identity.this.verification_token]
 }
 
 # SES DKIM verification
-
 resource "aws_ses_domain_dkim" "this" {
   provider = aws.us-east-1
   domain   = aws_ses_domain_identity.this.domain
@@ -42,4 +41,27 @@ resource "aws_route53_record" "dkim" {
   type    = "CNAME"
   ttl     = "600"
   records = ["${element(aws_ses_domain_dkim.this.dkim_tokens, count.index)}.dkim.amazonses.com"]
+}
+
+# SES Mail From record
+resource "aws_ses_domain_mail_from" "this" {
+  domain           = aws_ses_domain_identity.this.domain
+  mail_from_domain = "mail.${domain_name}"
+}
+
+# SPF validaton record
+resource "aws_route53_record" "spf_mail_from" {
+  zone_id = var.route53_zone_id
+  name    = aws_ses_domain_mail_from.this.mail_from_domain
+  type    = "TXT"
+  ttl     = "600"
+  records = ["v=spf1 include:amazonses.com -all"]
+}
+
+resource "aws_route53_record" "spf_domain" {
+  zone_id = var.route53_zone_id
+  name    = var.domain_name
+  type    = "TXT"
+  ttl     = "600"
+  records = ["v=spf1 include:amazonses.com -all"]
 }

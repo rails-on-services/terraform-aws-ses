@@ -45,6 +45,7 @@ resource "aws_route53_record" "dkim" {
 
 # SES Mail From record
 resource "aws_ses_domain_mail_from" "this" {
+  provider         = aws.us-east-1
   domain           = aws_ses_domain_identity.this.domain
   mail_from_domain = "mail.${var.domain_name}"
 }

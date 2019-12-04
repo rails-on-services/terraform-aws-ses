@@ -66,3 +66,16 @@ resource "aws_route53_record" "spf_domain" {
   ttl     = "600"
   records = ["v=spf1 include:amazonses.com -all"]
 }
+
+# Sending MX Record
+data "aws_region" "current" {
+  provider = aws.us-east-1
+}
+
+resource "aws_route53_record" "mx_send_mail_from" {
+  zone_id = var.route53_zone_id
+  name    = aws_ses_domain_mail_from.this.mail_from_domain
+  type    = "MX"
+  ttl     = "600"
+  records = ["10 feedback-smtp.${data.aws_region.current.name}.amazonses.com"]
+}
